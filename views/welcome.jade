@@ -1,0 +1,14 @@
+extends layout
+
+block content
+    h1= title
+    p Welcome to #{title}
+    #login-with
+        a(href="/login-github").
+            login with github
+        a(href="/login-facebook").
+            login with facebook
+        a(href="/login-google-plus").
+            login with google-plus
+        a(href="/login-email").
+            sign up to login by email

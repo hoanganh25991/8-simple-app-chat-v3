@@ -1,0 +1,10 @@
+extends layout
+
+block content
+    h1= title
+    a(href="/contact").
+        start chat with
+    ul#list-rooms
+        li#room-minion
+            a(href="/room/minion").
+                redocChat
