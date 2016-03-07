@@ -9,16 +9,24 @@ var exist_room = [];
 router.get('/', function (req, res) {
     res.render('room', {title: 'redocChat'});
 });
+//test io when exports, the attach to app
+router.get("/minion", function(req, res){
+    //get io from req
+    var io = req.io;
+    var namespace_io = io.of("/room/minion");
+    //setup connection
+    namespace_io.on("connection", function(socket){
+        //send msg to client
+        socket.emit("/room/minion", "server get you");
+        //listen from client
+        socket.on("/room/minion", function(msg){
+            socket.emit("/room/minion", "server get msg: " + msg);
+        });
+    });
+    res.render("minion");
+});
 router.get("/:roomID", ensureAuthenticated, function (req, res) {
-    var roomID = "/room" + "/" + req.params.roomID;
-    //var server = req.socket.server;
-    if (!exist_room.hasOwnProperty(roomID)) {
-        var settup_personal = require("../io.js").setup_personal;
-        settup_personal(req.io, roomID);
-        exist_room[roomID] = "ok";
-        console.log("exist_room: %s", exist_room);
-    }
-    res.render("message", {title: roomID, roomID: roomID});
+
 });
 // Simple route middleware to ensure user is authenticated.
 //   Use this route middleware on any resource that needs to be protected.  If
