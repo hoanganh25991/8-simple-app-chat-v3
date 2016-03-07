@@ -25,8 +25,56 @@ router.get("/minion", function(req, res){
     });
     res.render("minion");
 });
-router.get("/:roomID", ensureAuthenticated, function (req, res) {
-
+router.get("/:emitTo", ensureAuthenticated, function (req, res) {
+    /**
+     * SETUP CONNECTION for A chat to B
+     * server receive msg from A, store it, then emit to B
+     */
+    var io = req.io;
+    var userB_ID = req.params.emitTo;
+    var namespaceIo = io.of(userB_ID);
+    //get Message to store msg from client
+    var Message = require("../models/message.js");
+    namespaceIo.on("connection", function(socket){
+        //server receive msg from A to B
+        socket.on(userB_ID, function(msgAtoB){
+            //get json object from msgAtoB
+            var msgAtoBObject = JSON.parse(msgAtoB);
+            //store into database
+            Message.collection.insert(msgAtoBObject, onInsert);
+            function onInsert(err, docs) {
+                if (err) {
+                    // TODO: handle error
+                } else {
+                    console.info('%d message were successfully stored.', docs.length);
+                }
+            }
+            //send msg, msgAtoB to B
+            socket.broadcast.emit(userB_ID, msgAtoB);
+        });
+    });
+    /**
+     * SERVER LOAD MSG between A and B
+     */
+    //load msg from A to B
+    var userA_ID = req.user.id;
+    var listMsg = [];
+    Message.find({on: userA_ID}, {emit: userB_ID}, function(err, listMsgAtoB){
+        listMsg = listMsg.concat(listMsgAtoB);
+    });
+    Message.find({on: userB_ID}, {emit: userA_ID}, function(err, listMsgBtoA){
+        listMsg = listMsg.concat(listMsgBtoA);
+    });
+    listMsg.sort(function(msgFirst, msgSecond){
+        return new Date(msgSecond.createAt) - new Date(msgFirst.createAt);
+    });
+    /**
+     * RESPONE: userA_ID, userB_ID, listMsg
+     * userA_ID, who send msg,
+     * userB_ID, who receive
+     * listMsg, chat between A and B
+     */
+    res.render("message", {userA_ID: userA_ID, userB_ID: userB_ID, listMsg: listMsg});
 });
 // Simple route middleware to ensure user is authenticated.
 //   Use this route middleware on any resource that needs to be protected.  If

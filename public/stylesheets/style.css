@@ -10,3 +10,18 @@ a {
 #login-with a{
     display: block;
 }
+
+.msg-left{
+    max-width: 60%;
+    float: left;
+    border-radius: 2px;
+    border: 2px solid green;
+    border-left-width: 0;
+}
+.msg-right{
+    max-width: 60%;
+    float: right;
+    border-radius: 2px;
+    border: 2px solid blue;
+    border-right-width: 0;
+}

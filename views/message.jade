@@ -1,13 +1,21 @@
 extends layout
 
 block content
-    h1= title
-    input#input_roomID(type="hidden", name="roomID", value= roomID)
+    - var title = userB_ID
+    h1 #{title}
+    input#userA_ID(type="hidden", name="userA_ID", value= userA_ID)
+    input#userB_ID(type="hidden", name="userB_ID", value= userB_ID)
     form#form-message
         input#input-message(autocomplete="off" type="text")
-        button send
+        button(style="display: none") send
     ul#list-messages
         //handle saved messages
+        each val in listMsg
+            li
+                if val.on === userA_ID
+                    div.msg-right= val.msg
+                else
+                    div.msg-left= val.msg
 block script
     //script(src="/room/minion/socket.io/socket.io.js")
     script(src="/socket.io/socket.io.js")
