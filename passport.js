@@ -44,6 +44,7 @@ var setup_passport = function(){
                         console.log(err);  // handle errors!
                     }
                     if (!err && user !== null) {
+                        //this is auth-users info stored in User
                         done(null, user);
                     } else {
                         user = new User({

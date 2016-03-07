@@ -36,7 +36,7 @@ router.get("/:emitTo", ensureAuthenticated, function (req, res) {
     //get Message to store msg from client
     var Message = require("../models/message.js");
     namespaceIo.on("connection", function(socket){
-        //server receive msg from A to B
+        //server listen to msg send from A to B, on userB_ID, where A want to send msg
         socket.on(userB_ID, function(msgAtoB){
             //get json object from msgAtoB
             var msgAtoBObject = JSON.parse(msgAtoB);
@@ -49,7 +49,7 @@ router.get("/:emitTo", ensureAuthenticated, function (req, res) {
                     console.info('%d message were successfully stored.', docs.length);
                 }
             }
-            //send msg, msgAtoB to B
+            //send msgAtoB, from A to B
             socket.broadcast.emit(userB_ID, msgAtoB);
         });
     });

@@ -27,10 +27,26 @@ var passport = require("./passport.js");
 app.use(session({ secret: "keyboard cat", resave: false, saveUninitialized: false }));
 app.use(passport.initialize());
 app.use(passport.session());
-//setup socket-io
-var io = require("./io.js");
+/**
+ * SETUP SOCKET-IO
+ * push io to req, like global-use
+ * if auth-user, notify to other people, an "active-user" is online
+ */
 app.use(function(req, res, next){
-    req.io = io;//attach to req for global use in routes
+    //get io from module
+    var io = require("./io.js");
+    //attach to req for global use in routes
+    req.io = io;
+    //if auth-user, check by req.user
+    if(req.user){
+        //get active-users room
+        var globalNamespace_io = io();
+        globalNamespace_io.on("connection", function(socket){
+            //notify any people in active-users room (inclue this-user)
+            socket.emit("active-users", JSON.stringify(req.user));
+        });
+    }
+
     next();
 });
 //setup routes

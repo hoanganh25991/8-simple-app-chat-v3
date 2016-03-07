@@ -30,6 +30,15 @@ mongoose.connect("mongodb://localhost/8-simple-app-chat-v3");
 //io = socket_io(server, {});
 var io = require("../io.js");
 io.attach(server);
+//globalNamespace attach to "/" by default
+var globalNamespace_io = io();
+globalNamespace_io.on("connection", function(socket){
+    //create 'room' active-users inside "/" namespace
+    socket.join("active-users");
+    socket.on("active-users", function(activeUser){
+      socket.broadcast.emit("active-users", activeUser);
+    });
+});
 
 /**
  * Listen on provided port, on all network interfaces.
