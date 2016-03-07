@@ -12,14 +12,14 @@ a {
 }
 
 .msg-left{
-    max-width: 60%;
+    max-width: 200px;
     float: left;
     border-radius: 2px;
     border: 2px solid green;
     border-left-width: 0;
 }
 .msg-right{
-    max-width: 60%;
+    max-width: 200px;
     float: right;
     border-radius: 2px;
     border: 2px solid blue;

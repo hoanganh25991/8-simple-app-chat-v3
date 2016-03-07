@@ -1,20 +1,19 @@
 extends layout
 
 block content
-    h1= title
+    h1 Contact
     h3 active-users
-    input#input_userAppID(type="hidden",name="appID",value= userAppID)
+    input#userA_ID(type="hidden", name="userA_ID", value= userA_ID)
     ul#list-active-users
-        //handle active-users
-        //if(list_rooms != null)
-        //    each val in list_rooms
-        //        li
-        //            a(href= "/room/" + val.roomID)= val.username
     h3 contacts
     ul#list-contacts
         //handle contact
+        if listActiveUsers
+            each val in listActiveUsers
+                li
+                    a(href= "/room/" + val.oauthID)= val.displayName
 block script
     //script(src="/room/minion/socket.io/socket.io.js")
     script(src="/socket.io/socket.io.js")
     //script(src="https://cdn.socket.io/socket.io-1.4.5.js")
-    script(ssrc="/javascripts/contact-active-users.js")
+    script(src="/javascripts/contact-active-users.js")

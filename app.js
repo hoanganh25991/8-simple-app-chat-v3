@@ -20,11 +20,13 @@ app.use(express.static(path.join(__dirname, "public")));
 //setup views
 app.set("views", path.join(__dirname, "views"));
 app.set("view engine", "jade");
-//setup passport
+/**
+ * SETUP PASSPORT
+ */
 var passport = require("./passport.js");
+app.use(session({ secret: "keyboard cat", resave: false, saveUninitialized: false }));
 // Initialize Passport!  Also use passport.session() middleware, to support
 // persistent login sessions (recommended).
-app.use(session({ secret: "keyboard cat", resave: false, saveUninitialized: false }));
 app.use(passport.initialize());
 app.use(passport.session());
 /**
@@ -32,31 +34,44 @@ app.use(passport.session());
  * push io to req, like global-use
  * if auth-user, notify to other people, an "active-user" is online
  */
+var listActiveUsers = [];
 app.use(function(req, res, next){
     //get io from module
     var io = require("./io.js");
     //attach to req for global use in routes
     req.io = io;
-    //if auth-user, check by req.user
-    if(req.user){
-        //get active-users room
-        var globalNamespace_io = io();
-        globalNamespace_io.on("connection", function(socket){
-            //notify any people in active-users room (inclue this-user)
-            socket.emit("active-users", JSON.stringify(req.user));
-        });
-    }
-
+    next();
+});
+app.use(function(req, res, next){
+    //attach listActiveUsers to req
+    req.listActiveUsers = listActiveUsers;
     next();
 });
 //setup routes
+//at ensureAuthenticated to routes
+var router = express.Router();
+router.ensureAuthenticated = function (req, res, next) {
+    if (req.isAuthenticated()) {
+        return next();
+    }
+    //login fail, back to "/", login again
+    res.redirect('/')
+};
 var welcome = require("./routes/index.js");
 var login = require("./routes/login.js");
 var room = require("./routes/room.js");
 var contact = require("./routes/contact.js");
 app.use("/", welcome);
 app.use("/", login);
+//check auth on "/room/*"
+app.use("/room", function(req, res, next){
+    router.ensureAuthenticated(req, res, next);
+});
 app.use("/room", room);
+//check auth on "/contact/*"
+app.use("/contact", function(req, res, next){
+    router.ensureAuthenticated(req, res, next);
+});
 app.use("/contact", contact);
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {

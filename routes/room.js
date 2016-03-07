@@ -1,11 +1,6 @@
 var express = require('express');
 //var app = require("../app.js");
 var router = express.Router();
-//var server = app.server;
-//var socket_io = require("socket.io");
-//var io = socket_io(server, {});
-//GET /room
-var exist_room = [];
 router.get('/', function (req, res) {
     res.render('room', {title: 'redocChat'});
 });
@@ -25,13 +20,14 @@ router.get("/minion", function(req, res){
     });
     res.render("minion");
 });
-router.get("/:emitTo", ensureAuthenticated, function (req, res) {
+router.get("/:emitTo", function (req, res) {
     /**
      * SETUP CONNECTION for A chat to B
      * server receive msg from A, store it, then emit to B
      */
     var io = req.io;
     var userB_ID = req.params.emitTo;
+    //console.log("userB_ID: ",userB_ID);
     var namespaceIo = io.of(userB_ID);
     //get Message to store msg from client
     var Message = require("../models/message.js");
@@ -41,14 +37,14 @@ router.get("/:emitTo", ensureAuthenticated, function (req, res) {
             //get json object from msgAtoB
             var msgAtoBObject = JSON.parse(msgAtoB);
             //store into database
-            Message.collection.insert(msgAtoBObject, onInsert);
-            function onInsert(err, docs) {
+            Message.collection.insert(msgAtoBObject, function (err, docs) {
                 if (err) {
                     // TODO: handle error
                 } else {
                     console.info('%d message were successfully stored.', docs.length);
                 }
-            }
+            });
+
             //send msgAtoB, from A to B
             socket.broadcast.emit(userB_ID, msgAtoB);
         });
@@ -57,16 +53,32 @@ router.get("/:emitTo", ensureAuthenticated, function (req, res) {
      * SERVER LOAD MSG between A and B
      */
     //load msg from A to B
-    var userA_ID = req.user.id;
+    var userA_ID = req.user.oauthID;
     var listMsg = [];
-    Message.find({on: userA_ID}, {emit: userB_ID}, function(err, listMsgAtoB){
+    Message.find({from: userA_ID}, {to: userB_ID}, function(err, listMsgAtoB){
         listMsg = listMsg.concat(listMsgAtoB);
     });
-    Message.find({on: userB_ID}, {emit: userA_ID}, function(err, listMsgBtoA){
+    Message.find({from: userB_ID}, {to: userA_ID}, function(err, listMsgBtoA){
         listMsg = listMsg.concat(listMsgBtoA);
     });
     listMsg.sort(function(msgFirst, msgSecond){
         return new Date(msgSecond.createAt) - new Date(msgFirst.createAt);
+    });
+    /**
+     * ACTIVE USERS: add this user to listActiveUsers
+     */
+    var listActiveUsers = req.listActiveUsers;
+    io.on("connection", function(socket){
+        //store this user into listActiveUsers
+        if(!listActiveUsers.hasOwnProperty(req.user.oauthID)){
+            //store key-value pair, easy for compare by hasOwnProperty(key)
+            listActiveUsers[req.user.oauthID] = req.user;
+            console.log("req.user: ", req.user);console.log("listActiveUsers: ", listActiveUsers);
+            //notify any people in active-users room (inclue this-user)
+            socket.emit("active-users", JSON.stringify(req.user));
+            //attach this listActiveUsers to request
+            req.listActiveUsers = listActiveUsers;
+        }
     });
     /**
      * RESPONE: userA_ID, userB_ID, listMsg
@@ -81,13 +93,7 @@ router.get("/:emitTo", ensureAuthenticated, function (req, res) {
 //   the request is authenticated (typically via a persistent login session),
 //   the request will proceed.  Otherwise, the user will be redirected to the
 //   login page.
-function ensureAuthenticated(req, res, next) {
-    if (req.isAuthenticated()) {
-        return next();
-    }
-    //login fail, back to "/", login again
-    res.redirect('/')
-}
+
 
 
 module.exports = router;

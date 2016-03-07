@@ -16,8 +16,8 @@ window.onload = function(){
         var msgObjectAtoB = {
             msg: msgAtoB,
             createAt: new Date().toString(),
-            on: userA_ID,
-            emit: userB_ID
+            from: userA_ID,
+            to: userB_ID
         };
         //send to server
         socket.emit(userB_ID, JSON.stringify(msgObjectAtoB));

@@ -3,8 +3,8 @@ var mongoose = require('mongoose');
 var userSchema = mongoose.Schema({
     msg: String,
     createAt: String,
-    on: String,
-    emit: String
+    from: String,
+    to: String
 });
 // create the model for users and expose it to our app
 module.exports = mongoose.model('Message', userSchema);
