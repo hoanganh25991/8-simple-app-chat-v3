@@ -1,16 +1,11 @@
 body {
-    padding: 50px;
     font: 14px "Lucida Grande", Helvetica, Arial, sans-serif;
 }
 
-a {
-    color: #00B7FF;
-}
 
 #login-with a{
-    display: block;
-}
-
+     display: block;
+ }
 .msg-left{
     max-width: 200px;
     float: left;

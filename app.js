@@ -33,68 +33,7 @@ app.use(passport.session());
  * SET UP: AUTH for socket connection
  * if auth-user, notify to other people, an "active-user" is online
  */
-app.use(function(req, res, next){
-    console.log("inside middleware check connection");
-    //if auth-user, check by req.user
-    if(req.isAuthenticated()){
-        console.log("this user is auth");
-        //get io
-        var io = require("./io.js");
-        //get active-users room
-        var ListActiveUsers = require("./models/activeUser.js");
-        io.on("connection", function(socket){
-            //has connection
-            console.log("io('/') connect");
-            //store listActiveUsers
-            //var newActiveUser = new ListActiveUsers({
-            //    userOauthID: req.user.oauthID,
-            //    socketID: socket.id
-            //});
-            //newActiveUser.save();
-            ////emit to all users know new active-user (inclue this new-auth-user)
-            //socket.emit("active-users", JSON.stringify(req.user));
-            ListActiveUsers.findOne({userOauthID: req.user.oauthID}, function(err, list){
-                //find one result in null/object
-                if(list == null){
-                    //find, but result is null
-                    console.log("if(list == null)");
-                    console.log("req.user.oauthID: ", req.user.oauthID);
-                    var newActiveUser = new ListActiveUsers({
-                        userOauthID: req.user.oauthID,
-                        socketID: socket.id
-                    });
-                    newActiveUser.save();
-                    //emit to all users know new active-user (inclue this new-auth-user)
-                    socket.emit("active-users", JSON.stringify(req.user));
-                }else{
-                    ////list is empty, store this new active-user
-                    //console.log("list is empty");
-                    //console.log("req.user.oauthID: ", req.user.oauthID);
-                    //var newActiveUser = new ListActiveUsers({
-                    //    userOauthID: req.user.oauthID,
-                    //    socketID: socket.id
-                    //});
-                    //newActiveUser.save();
-                    ////emit to all users know new active-user (inclue this new-auth-user)
-                    //socket.emit("active-users", JSON.stringify(req.user));
-                }
-            });
-            //socket.on("disconnect", function(socket){
-            //    console.log("io('/') disconnect");
-            //    //remove from list active user
-            //    ListActiveUsers.findOne({socketID: socket.id}, function(err, user){
-            //        if(user){
-            //            //emit to let active-users remove this disconnect user
-            //            socket.emit("unactive-users", JSON.stringify(user));
-            //            //remove from listActiveUsers
-            //            user.remove();
-            //        }
-            //    });
-            //});
-        });
-    }
-    next();
-});
+//no need more
 /**
  * SETUP SOCKET-IO
  * push io to req, like global-use
