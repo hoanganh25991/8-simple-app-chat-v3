@@ -39,7 +39,7 @@ router.get("/:toUserB", function (req, res) {
             if(msgFromXObject.from === userA){
                 console.log("emit msg from userID-%s to userID-%s", userA, userB);
                 //2. server send this msg to B, DONE
-                socket.emit(userB, msgFromX);
+                socket.broadcast.emit(userB, msgFromX);
             }
         });
         /**
@@ -56,7 +56,7 @@ router.get("/:toUserB", function (req, res) {
             if(msgFromXObject.from === userB){
                 console.log("emit msg from userID-%s to userID-%s", userB, userA);
                 //2. server notify this msg to A, DONE
-                socket.emit(userA, msgFromX);
+                socket.broadcast.emit(userA, msgFromX);
             }
         });
     });
