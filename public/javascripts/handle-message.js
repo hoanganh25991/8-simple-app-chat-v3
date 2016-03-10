@@ -13,7 +13,8 @@ window.onload = function(){
     //get info
     var userA= $("#userA").val();
     var userB = $("#userB").val();
-    socket = io();
+    //get socket from namespace
+    socket = io(userB);
     /**
      * 1. send msg from A to server, when form submit
      */
@@ -34,20 +35,24 @@ window.onload = function(){
             to: userB
         };
         //send to server, DONE
-        socket.emit(userB, JSON.stringify(msgFromAObject));
+        //under namespaceUserB, A send msg to server, then server search for B, send to B
+        socket.emit(userB, msgFromAObject);
         //cancel submit, we MUST do this, if not, page reload
         return false;
     });
     /**
      * 2. receive msg from server
      */
-    socket.on(userA, function(msgFromB){
-        //server has filtered msg, from B to A
-        var msgFromBObject = JSON.parse(msgFromB);//parse JSON object
-        //console.log("msg: %s\nfrom: userID-%s\nto: userID-%s\n", msgFromBObject.msg, msgFromBObject.from, msgFromBObject.to);//info
-        console.log("msgFromBOjebct: \n", msgFromBObject);
-        //append to list-messages, msg from B to A
-        var div = $("<div>").attr("class", "msg-left").text(msgFromBObject.msg);
+    socket.on(userA, function(msgFromXObject){
+        //server not filter msg from X, Y, Z to A
+        //vi khi B o mot noi khac, da muon namespaceUserA de emit(msg), khi emit dau co find A, emit all members in namespaceUserA
+        //log msg info
+        console.log("msgFromBOjebct:", msgFromXObject);
+        //if check msg from B
+        if(msgFromXObject.from == userB){
+            //append to list-messages, msg from B to A
+        var div = $("<div>").attr("class", "msg-left").text(msgFromXObject.msg);
         $("#list-messages").append($("<li>").append(div));
+        }
     });
 };
