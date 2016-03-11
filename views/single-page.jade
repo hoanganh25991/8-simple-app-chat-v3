@@ -2,21 +2,29 @@ extends layout
 block content
     div#frame
         div#chat.abc
-            p chat
+            h1 redocChat
             p recent conversations
-            a(href="#contact") +
+            hr
+            p
+                a(href="#contact") start chat with [+]
             ul#recent-conversations
                 //show list
         div#contact.abc
-            p contact
-            p list active users
+            h1 contact
+            hr
+            p active users
             ul#list-active-users
                 //show list
-            p contact
+            p friends
+            hr
         div#conversation.abc
-            a(href="#contact") +
-            a(href="#chat") chat
-            p conversation
+            h1 conversation
+            hr
+            p
+                a(href="#chat") home
+            p
+                a(href="#contact") new conversation [+]
+            p#conversation-title
             form#form-message
                 input#input-message(autocomplete="off", type= "text")
                 button(style="display: none") send

@@ -4,17 +4,12 @@ window.onload = function(){
     var userA_sender= $("#userA-sender").val();
     //get socket from namespace
     var host = "http://localhost:3000/";
-    var namespaceDefault = "/";
+    var namespaceDefault = "redoc";
     socket = io(host + namespaceDefault);
-    socket = io();
+    //socket = io();
     //when userA click on [contact] to chat with others, get list-active-users for him
     //list active users DOM
     var DOM_listActiveUser = $("#list-active-users");
-    console.log("abc");
-    console.log("abc");
-    console.log("abc");
-    console.log("abc");
-    console.log("abc");
     socket.emit("list-active-users", "server give me list active users");
     //listen to this list from server
     socket.on("list-active-users", function(list_active_users){
@@ -46,6 +41,8 @@ window.onload = function(){
         //if this is a
         userB_receiver = $(this).attr('href');
         //move user to conversation
+        var DOM_conversation_title = $("#conversation-title");
+        DOM_conversation_title.text("#" + $(this).text());
         location.href = "#conversation";
     });
     $("#form-message").submit(function(){
@@ -79,12 +76,17 @@ window.onload = function(){
         //update conversation (A,B)
         //if msgFrom B, update
         var div; //DOM of msg
+        //check userB_receiver
+        console.log("userB_receiver: ", userB_receiver);
         if(msgFromXObject.from === userB_receiver){
             div = $("<div>").attr("class", "msg-left").text(msgFromXObject.msg);
         }
+        console.log("userA_sender: ", userA_sender);
         if(msgFromXObject.from === userA_sender){
             div = $("<div>").attr("class", "msg-right").text(msgFromXObject.msg); }
-        $("#list-messages").append($("<li>").append(div));
+        if(div){
+            $("#list-messages").append($("<li>").append(div));
+        }
     });
     function updateDOM_List(userObject){
         //append list DOM
