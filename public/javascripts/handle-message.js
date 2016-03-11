@@ -14,7 +14,8 @@ window.onload = function(){
     var userA= $("#userA").val();
     var userB = $("#userB").val();
     //get socket from namespace
-    socket = io(userB);
+    var host = "http://localhost:3000/";
+    socket = io(host + userB);
     /**
      * 1. send msg from A to server, when form submit
      */
@@ -51,8 +52,13 @@ window.onload = function(){
         //if check msg from B
         if(msgFromXObject.from == userB){
             //append to list-messages, msg from B to A
-        var div = $("<div>").attr("class", "msg-left").text(msgFromXObject.msg);
-        $("#list-messages").append($("<li>").append(div));
+            var div = $("<div>").attr("class", "msg-left").text(msgFromXObject.msg);
+            $("#list-messages").append($("<li>").append(div));
         }
+    });
+
+    var socketDefault = io();
+    socketDefault.on("time", function(msg){
+        console.log(msg);
     });
 };

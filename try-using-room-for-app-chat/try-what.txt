@@ -1,0 +1,6 @@
+1. Only open 1 namespace
+	under this namespace, each socket has userID (from cookie in handshake-request), add this socket to room "userID"
+
+2. When A click chat to B
+	no need to open any new request, at this page, socket emit msg to room "userB", now B can receive msg easily
+

@@ -1,24 +1,18 @@
 #!/usr/bin/env node
-
 /**
  * Module dependencies.
  */
-
 var app = require('../app');
 var debug = require('debug')('8-simple-app-chat-v3:server');
 var http = require('http');
-
 /**
  * Get port from environment and store in Express.
  */
-
 var port = normalizePort(process.env.PORT || '3000');
 app.set('port', port);
-
 /**
  * Create HTTP server.
  */
-
 var server = http.createServer(app);
 //app.server = server;
 //setup mongoose
@@ -28,72 +22,88 @@ mongoose.connect("mongodb://localhost/8-simple-app-chat-v3");
 //var socket_io = require("socket.io");
 ////push io to global
 //io = socket_io(server, {});
-var io = require("../io.js");
-io.attach(server);
+
+
 /**
  * Listen on provided port, on all network interfaces.
  */
-
 server.listen(port);
 server.on('error', onError);
 server.on('listening', onListening);
 
-/**
- * Normalize a port into a number, string, or false.
- */
+var io = require('socket.io')();
+io.attach(server);
+var redis = require('socket.io-redis');
+io.adapter(redis({host: 'localhost', port: 6379}));
 
-function normalizePort(val) {
-  var port = parseInt(val, 10);
+setInterval(function () {
+    io.to("hoang anh room").emit('time', new Date);
+    io.to("em be room").emit('time', "em be time");
+}, 5000);
 
-  if (isNaN(port)) {
-    // named pipe
-    return val;
-  }
+    io.on("connection", function (socket) {
+        var int = Math.floor(Math.random() * 10);
+        console.log(int);
+        if ((int % 2) == 0) {
+            socket.join("hoang anh room");
+        } else {
+            socket.join("em be room");
+        }
+        console.log(socket.id);
+    });
+    /**
+     * Normalize a port into a number, string, or false.
+     */
+    function normalizePort(val) {
+        var port = parseInt(val, 10);
 
-  if (port >= 0) {
-    // port number
-    return port;
-  }
+        if (isNaN(port)) {
+            // named pipe
+            return val;
+        }
 
-  return false;
-}
+        if (port >= 0) {
+            // port number
+            return port;
+        }
 
-/**
- * Event listener for HTTP server "error" event.
- */
+        return false;
+    }
 
-function onError(error) {
-  if (error.syscall !== 'listen') {
-    throw error;
-  }
+    /**
+     * Event listener for HTTP server "error" event.
+     */
+    function onError(error) {
+        if (error.syscall !== 'listen') {
+            throw error;
+        }
 
-  var bind = typeof port === 'string'
-    ? 'Pipe ' + port
-    : 'Port ' + port;
+        var bind = typeof port === 'string'
+            ? 'Pipe ' + port
+            : 'Port ' + port;
 
-  // handle specific listen errors with friendly messages
-  switch (error.code) {
-    case 'EACCES':
-      console.error(bind + ' requires elevated privileges');
-      process.exit(1);
-      break;
-    case 'EADDRINUSE':
-      console.error(bind + ' is already in use');
-      process.exit(1);
-      break;
-    default:
-      throw error;
-  }
-}
+        // handle specific listen errors with friendly messages
+        switch (error.code) {
+            case 'EACCES':
+                console.error(bind + ' requires elevated privileges');
+                process.exit(1);
+                break;
+            case 'EADDRINUSE':
+                console.error(bind + ' is already in use');
+                process.exit(1);
+                break;
+            default:
+                throw error;
+        }
+    }
 
-/**
- * Event listener for HTTP server "listening" event.
- */
-
-function onListening() {
-  var addr = server.address();
-  var bind = typeof addr === 'string'
-    ? 'pipe ' + addr
-    : 'port ' + addr.port;
-  debug('Listening on ' + bind);
-}
+    /**
+     * Event listener for HTTP server "listening" event.
+     */
+    function onListening() {
+        var addr = server.address();
+        var bind = typeof addr === 'string'
+            ? 'pipe ' + addr
+            : 'port ' + addr.port;
+        debug('Listening on ' + bind);
+    }

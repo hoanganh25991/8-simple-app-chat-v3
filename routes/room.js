@@ -13,30 +13,37 @@ router.get('/', function (req, res) {
     res.render("room", {title: title});
 });
 /**
- * A chat with B through page: "/room/userB_ID"
- * in this page, A SEND MSG TO B,
- * then LISTEN MSG FROM B (on other page)
- * userB is recognized by userB_ID, so when send msg to B, means send msg to userB_ID
+ * A stay in namespaceUserB, send msg to B
+ * B stay in namespaceUserA, send msg to A
+ * A can not see B, they are in 2 different namespace
+ * A send msg to [server], then [server] push msg to namespaceUserA (where B locate)
+ * B send msg to [server], again [server] push msg to namespaceUserB (where A locate)
+ * the contraint:
+ *      send to namespaceUserA (not directly to B),
+ *      send to namespaceUserB (not directly to A)
  */
 router.get("/:toUserB", function (req, res) {
-    //get server io (in this app, we use only io on namespace "/" as default)
+    //get server ioServer (in this app, we use only ioServer on namespace "/" as default)
     var ioServer = require("../io.js");
-    //sender
+    //sender, userA
     var userA = req.user.oauthID;
-    //receiver
+    //receiver, userB
     var userB = req.params.toUserB;
     var PersonalMessage = require("../models/personal-message.js");
     //create namespace for userB, namespaceUserB, where B receive all msg from other people
     // if io has namespaceUserB, not create
     var nspUserB = "/" + userB;
     var namespaceUserB;
+    //run namespaceUserB only one time
     if(ioServer.nsps[nspUserB]){
         //if has one, not create
         //if has namespaceUserB, get out
         namespaceUserB = ioServer.of(userB);
+        console.log("has namespace-%s", namespaceUserB);
     }else{
         //create a new one
-        var namespaceUserB = ioServer.of(userB);
+        namespaceUserB = ioServer.of(userB);
+        console.log("new namespace-%s", namespaceUserB);
         //run server, only one time
         namespaceUserB.on("connection", function(socket){
             //listen to new connection come
@@ -67,13 +74,20 @@ router.get("/:toUserB", function (req, res) {
                 //to send msg to B, send msg in namespaceUserA :)
                 var nspUserA = "/" + userA;
                 //check if namespaceUser has exist
-                if(ioServer.nsps[npsUserA]){
+                if(ioServer.nsps[nspUserA]){
                     //get namespaceUserA from ioServer
                     var namespaceUserA = ioServer.of(userA);
                     //use this namespace, notify to B (all memebers in this nsp)
-                    namespaceUserA.emit(userA, msgFromXObject);
+                    /**
+                     * [WARN] THIS METHOD MAY NOT BE WORK
+                     * bcs, namespaceUserA now outside of waiting loop
+                     * may be, we have to use socket.io-emitter
+                     */
+                    namespaceUserA.broadcast.emit(userA, msgFromXObject);
+                    var ioEmitterServer = require('socket.io-emitter')();
+                    ioEmitterServer.broadcast.emit(userA, msgFromXObject);
                 }else{
-                    //if this namespaceUserA not establish > B not ready chat with A
+                    //if this namespaceUserA not establish >>> B not ready chat with A
                     //no need to modify anything
                 }
             }
@@ -97,7 +111,7 @@ router.get("/:toUserB", function (req, res) {
                 console.log("emit msg from userID-%s to userID-%s", userB, userA);
                 //2. server notify this msg to A, DONE
                 //the reason why use emit not broadcast.emit, server-clientA talk directly under namespaceUserB
-                socket.emit(userA, msgFromXObject);
+                socket.broadcast.emit(userA, msgFromXObject);
             }
         });
     });

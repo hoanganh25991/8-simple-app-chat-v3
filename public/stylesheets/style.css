@@ -1,20 +1,27 @@
 body {
     font: 14px "Lucida Grande", Helvetica, Arial, sans-serif;
 }
-
-
+#list-messages{
+    padding: 2px;
+}
+#list-messages li{
+    height: 20px;
+    width: 200px;
+    margin: 5px;
+    padding: 5px;
+}
 #login-with a{
      display: block;
  }
 .msg-left{
-    max-width: 200px;
+    max-width: 65%;
     float: left;
     border-radius: 2px;
     border: 2px solid green;
     border-left-width: 0;
 }
 .msg-right{
-    max-width: 200px;
+    max-width: 65%;
     float: right;
     border-radius: 2px;
     border: 2px solid blue;
