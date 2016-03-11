@@ -36,9 +36,9 @@ var passport = require("./passport.js");
 app.use(passport.initialize());
 app.use(passport.session());
 /**
- * SETUP ROUTES
+ * ROUTES
  */
-//at ensureAuthenticated to routes
+//ensure authenticated on routes
 var ensureAuthenticated = function (req, res, next) {
     if (req.isAuthenticated()) {
         return next();
@@ -55,6 +55,16 @@ app.use("/", login);
 //check auth on "/room/*", "/contact/*"
 app.use("/room",ensureAuthenticated);
 app.use("/contact", ensureAuthenticated);
+//set userID to cookie
+//because of middleware-order, i guess userID never get "123"
+app.use(function(req, res, next){
+    var userID = "123";
+    if(req.user){
+        userID = req.user.oauthID;
+    }
+    res.cookie("userID", userID);
+    next();
+});
 app.use("/room", room);
 app.use("/contact", contact);
 // catch 404 and forward to error handler

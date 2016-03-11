@@ -38,11 +38,12 @@ namespaceDefault.on("connection", function(socket){
     //notify new socket connected
     console.log("new socket connected: %s", socket.id);
     //1. get userID from socket handshake request
-    //get cookies
-    var cookies = socket.handshake.headers.cookies;
+    //get cookie
+    var cookie = socket.handshake.headers.cookie;
     var key = "userID";
-    //get userID from cookies string
-    var userID = cookies.match('(^|;) ?' + key + '=([^;]*)(;|$)');
+    //get userID from cookie string
+    //noinspection JSCheckFunctionSignatures
+    var userID = cookie.match('(^|;) ?' + key + '=([^;]*)(;|$)');
     //2. find this userID in User table
     User.findOne({oauthID: userID}, function(err, user){
         //if find success, !err, user !== null (findOne, return user object|null)
