@@ -1,0 +1,29 @@
+extends layout
+block content
+    div#frame
+        div#chat.abc
+            p chat
+            p recent conversations
+            a(href="#contact") +
+            ul#recent-conversations
+                //show list
+        div#contact.abc
+            p contact
+            p list active users
+            ul#list-active-users
+                //show list
+            p contact
+        div#conversation.abc
+            a(href="#contact") +
+            a(href="#chat") chat
+            p conversation
+            form#form-message
+                input#input-message(autocomplete="off", type= "text")
+                button(style="display: none") send
+            ul#list-messages
+                //show msg chat
+        div#info
+            input#userA-sender(type="hidden", name="userA-sender", value= userA_sender)
+block script
+    script(src="/socket.io/socket.io.js")
+    script(src="/javascripts/socket-client-side.js")

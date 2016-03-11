@@ -1,21 +1,21 @@
-[SERVER-SIDE]																
-1. at bin/www, receive socket												
-2. check socket handshake, find userID										
-3. when find out															
-	a. socket.join(userID)													
-	b. check list-active-users, emit "new-active-user" come					
-	// ONE client can open MANY sockets to server, on different browser/tab	
-	// so add all these sockets to room "userID"							
-4. server listen "clientMessage"											
-	base on message-info, server emit to room "userID", who receive			
-5. server listen "list-active-users"										
-	send this list to user, who need chat with others						
-[CLIENT-SIDE]													|
-1. user want to chat with others, ask for list-active-users		|
-	emit to server on "list-active-users" for asking			|
-2. when user send msg on form.submit							|
-	emit to server on "clientMessage", messgage-info object		|
-	(socket accept object, no need to convert to JSON)			|
-3. receive msg from who chat with								|
-	listen on "userID", who chat with							|
-4. listen on "new-active-user" to update list-active-users		|
+[SERVER-SIDE]
+1. at bin/www, receive socket
+2. check socket handshake, find userID
+3. when find out
+	a. socket.join(userID)
+	b. check list-active-users, emit "new-active-user" come
+	// ONE client can open MANY sockets to server, on different browser/tab
+	// so add all these sockets to room "userID"
+4. server listen "clientMessage"
+	base on message-info, server emit to room "userID", who receive
+5. server listen "list-active-users"
+	send this list to user, who need chat with others
+[CLIENT-SIDE]
+1. user want to chat with others, ask for list-active-users
+	emit to server on "list-active-users" for asking
+2. when user send msg on form.submit
+	emit to server on "clientMessage", messgage-info object
+	(socket accept object, no need to convert to JSON)
+3. receive msg from who chat with
+	listen on "userID", who chat with
+4. listen on "new-active-user" to update list-active-users

@@ -24,7 +24,7 @@ router.get('/auth/github/callback',
     passport.authenticate('github', { failureRedirect: '/' }),
     function(req, res) {
         //login success, go to "/room"
-        res.redirect('/room');
+        res.redirect('/single-page');
     }
 );
 router.get('/logout', function(req, res){

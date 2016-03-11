@@ -50,11 +50,13 @@ var welcome = require("./routes/index.js");
 var login = require("./routes/login.js");
 var room = require("./routes/room.js");
 var contact = require("./routes/contact.js");
+var single_page = require("./routes/single-page.js");
 app.use("/", welcome);
 app.use("/", login);
 //check auth on "/room/*", "/contact/*"
 app.use("/room",ensureAuthenticated);
 app.use("/contact", ensureAuthenticated);
+app.use("/single-page", ensureAuthenticated);
 //set userID to cookie
 //because of middleware-order, i guess userID never get "123"
 app.use(function(req, res, next){
@@ -67,6 +69,7 @@ app.use(function(req, res, next){
 });
 app.use("/room", room);
 app.use("/contact", contact);
+app.use("/single-page", single_page);
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
     var err = Error("Not Found");
