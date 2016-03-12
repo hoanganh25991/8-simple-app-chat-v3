@@ -2,6 +2,7 @@ var log4j_2 = require("./log4j-2.js");
 //User table from mongodb database
 //find user from userID
 var User = require("./models/user.js");
+var PersonalMessage = require("./models/personal-message.js");
 //store active users
 var list_active_users = {};
 var socket_server_side = function(socket){
@@ -45,12 +46,16 @@ var socket_server_side = function(socket){
     //4. listen msg from user, send it to who he want to chat with
     socket.on("clientChatMsg", function (msgObject) {
         log4j_2.info(msgObject);
+        //store msg into PersonalMessage table
+        PersonalMessage.collection.insert(msgObject, function(){});
         var receiver = msgObject.to;
         //userA can open many tabs >>> chat a one tab need append on others
         //userA is unique by userID, not by socket
         socket.to(receiver).emit("clientChatMsg", msgObject); log4j_2.info("socket emit to receiver: %s", msgObject.to);
         var sender = msgObject.from; //log4j_2(msgObject.from);
-        socket.to(sender).broadcast.emit("clientChatMsg", msgObject); log4j_2.info("send to sender %s", msgObject.from);
+        //socket.to(sender).broadcast.emit("clientChatMsg", msgObject); log4j_2.info("send to sender %s", msgObject.from); //we don't have to "to(ROOM)", if socke.emit means socket emit to its room
+        socket.broadcast.emit("clientChatMsg", msgObject); log4j_2.info("send to sender %s", msgObject.from);
     });
+
 };
 module.exports = socket_server_side;
