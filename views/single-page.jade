@@ -28,8 +28,10 @@ block content
             form#form-message
                 input#input-message(autocomplete="off", type= "text")
                 button(style="display: none") send
-            ul#list-messages
-                //show msg chat
+            div#msg
+                ul#list-old-messages.list-msg
+                ul#list-messages.lis-mg
+                    //show msg chat
         div#info
             input#userA-sender(type="hidden", name="userA-sender", value= userA_sender)
 block script

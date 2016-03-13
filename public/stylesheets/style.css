@@ -1,13 +1,13 @@
 body {
     font: 14px "Lucida Grande", Helvetica, Arial, sans-serif;
 }
-#list-messages{
-}
-#list-messages li{
-    height: 20px;
-    width: 250px;
-    margin: 5px;
-    padding: 5px;
+#msg{
+    overflow: auto;
+    height: 350px;
+ }
+.list-msg li{
+    width: 100%;
+    padding: 2px;
 }
 #login-with a{
      display: block;
@@ -16,23 +16,24 @@ body {
     max-width: 65%;
     float: left;
     border-radius: 2px;
-    border: 2px solid green;
+    border: 1px solid green;
     border-left-width: 0;
 }
 .msg-right{
     max-width: 65%;
     float: right;
     border-radius: 2px;
-    border: 2px solid blue;
+    border: 1px solid blue;
     border-right-width: 0;
 }
 #frame{
     width: 400px;
     height: 460px;
     overflow: hidden;
-    border: 1px solid black;
+    border: 2px solid black;
     padding: 5px;
 }
 .abc{
     height: 450px;
+    padding: 5px;
 }

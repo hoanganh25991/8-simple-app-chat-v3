@@ -28,9 +28,25 @@ mongoose.connect("mongodb://localhost/" + database_name);
 var IOServer = require("socket.io");
 var ioServer = new IOServer(server, {});
 var handle_socket = require("../socket-server-side.js");
+//namespace = io.of(String name, Function callback);
+//var nameSpaceDefault = ioServer.of("redoc"); //WRONG establish
 var namespaceDefault = ioServer.of("redoc", function(socket){
     handle_socket(socket);
+    //EMIT BY NAMESPACE, if namespace wrong establish >>> emit not success
+    //namespaceDefault.emit("new-active-user", {oauthID: 111, diplayName: "server"});
+    //socket.emit("clgt", "dkm may");
+    //socket.join("dkm");
+    //setInterval(function(){
+    //    //socket.emit("clgt", "dkm may" + socket.id); //EMIT means emit to its self
+    //TO(ROOM).EMIT means emit to ROOM
+    // socket.to("dkm").emit("dkm", "i join dkm room");
+    //RIGHT AFTER JOIN ROOM, not work to(room)
+    //it work with the second emit
+    //    socket.to(socket.id).emit("clgt", "dkm may" + socket.id);//emit to itself is not work
+    //}, 1000);
+
 });
+
 /**
  * Normalize a port into a number, string, or false.
  */

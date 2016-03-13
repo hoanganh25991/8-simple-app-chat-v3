@@ -41,6 +41,7 @@ var socket_server_side = function(socket){
         log4j_2.info(msg);
         //socket.to(socket.id).emit("list-active-users", list_active_users);
         //only emit to client ask it
+        //socket.join("dkm");
         socket.emit("list-active-users", list_active_users); log4j_2.info("server send list active users");
     });
     //4. listen msg from user, send it to who he want to chat with
@@ -51,10 +52,25 @@ var socket_server_side = function(socket){
         var receiver = msgObject.to;
         //userA can open many tabs >>> chat a one tab need append on others
         //userA is unique by userID, not by socket
-        socket.to(receiver).emit("clientChatMsg", msgObject); log4j_2.info("socket emit to receiver: %s", msgObject.to);
+        socket.emit("clientChatMsg", msgObject); log4j_2.info("socket emit to receiver: %s", msgObject.to);
         var sender = msgObject.from; //log4j_2(msgObject.from);
         //socket.to(sender).broadcast.emit("clientChatMsg", msgObject); log4j_2.info("send to sender %s", msgObject.from); //we don't have to "to(ROOM)", if socke.emit means socket emit to its room
-        socket.broadcast.emit("clientChatMsg", msgObject); log4j_2.info("send to sender %s", msgObject.from);
+        socket.emit("clientChatMsg", msgObject); log4j_2.info("send to sender %s", msgObject.from);
+    });
+    //5. load msg history from PersonalMessage table
+    socket.on("loadMsg", function(demand){
+        PersonalMessage.find({
+            from: demand.from,
+            to: demand.to}).
+            sort({createAt: 1}).
+            limit(10).
+            exec(function(err, listMsg){
+            //mongoose "find" function return empty-array []/collection
+            if(!err && listMsg.length > 0){
+                log4j_2.info(listMsg);
+                socket.emit("loadMsg", listMsg); //emit here means emit to any socket in this socket's ROOM
+            }
+        });
     });
 
 };

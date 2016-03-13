@@ -29,6 +29,7 @@ window.onload = function(){
         //update list
         //get user
         var userObject = new_active_user;
+        console.log(userObject);
         updateDOM_List(userObject);
     });
     var userB_receiver = "123";
@@ -43,6 +44,13 @@ window.onload = function(){
         //move user to conversation
         var DOM_conversation_title = $("#conversation-title");
         DOM_conversation_title.text("#" + $(this).text());
+        //get msg history from conversation
+        //ask server query database
+        var demand = {
+            from: userA_sender,
+            to: userB_receiver
+        };
+        socket.emit("loadMsg", demand);
         location.href = "#conversation";
     });
     $("#form-message").submit(function(){
@@ -82,16 +90,39 @@ window.onload = function(){
             div = $("<div>").attr("class", "msg-left").text(msgFromXObject.msg);
         }
         console.log("userA_sender: ", userA_sender);
+        //update msg from A, but from other sockets not this socket
         if(msgFromXObject.from === userA_sender){
             div = $("<div>").attr("class", "msg-right").text(msgFromXObject.msg); }
         if(div){
             $("#list-messages").append($("<li>").append(div));
         }
     });
+    var DOM_ListOldMsg = $("#list-old-messages");
+    socket.on("loadMsg", function(listMsg){
+        for(var i = 0;  i < listMsg.length; i++){
+            updateDOM_ListOldMsg(listMsg[i]);
+        }
+    });
+    socket.on("clgt", function(msg){
+        console.log(msg);
+    });
     function updateDOM_List(userObject){
         //append list DOM
         var DOM_userLink = $("<a>").attr("href", userObject.oauthID).text(userObject.displayName);
         DOM_listActiveUser.append($("<li>").append(DOM_userLink));
+    }
+    function updateDOM_ListOldMsg(msgObject){
+        var div = $("<div>");
+        console.log(msgObject);
+        if(msgObject.from === userA_sender){
+            div.attr("class", "msg-right");
+        }else{
+            //means msg from others, not userA
+            //chat group, coverstaion (A,B,C, D...)
+            div.attr("class", "msg-left");
+        }
+        div.text(msgObject.msg);
+        DOM_ListOldMsg.append($("<li>").append(div));
     }
 };
 
