@@ -1,0 +1,11 @@
+var listMsgAvB = [];
+var listMsgAtoB = ["ong", "xa", "yeu", "dau"];
+var listMsgBtoA = ["ba", "xa", "mo", "nhon"];
+// listMsgAvB.concat(listMsgAtoB, listMsgBtoA); //this not work, must re-assign a = a + 1;
+listMsgAvB = listMsgAvB.concat(listMsgAtoB);
+listMsgAvB = listMsgAvB.concat(listMsgBtoA);
+listMsgAvB = listMsgAvB.concat(listMsgAtoB, listMsgBtoA);
+var a = listMsgAtoB.concat(listMsgBtoA);
+console.log("listMsgAtoB: ", listMsgAtoB);
+console.log("a: ", a);
+console.info("listMsgAvB: ", listMsgAvB);

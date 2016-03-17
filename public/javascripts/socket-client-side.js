@@ -103,9 +103,9 @@ window.onload = function(){
             updateDOM_ListOldMsg(listMsg[i]);
         }
     });
-    socket.on("clgt", function(msg){
-        console.log(msg);
-    });
+    //socket.on("clgt", function(msg){
+    //    console.log(msg);
+    //});
     function updateDOM_List(userObject){
         //append list DOM
         var DOM_userLink = $("<a>").attr("href", userObject.oauthID).text(userObject.displayName);

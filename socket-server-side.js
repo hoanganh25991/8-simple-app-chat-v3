@@ -5,7 +5,8 @@ var User = require("./models/user.js");
 var PersonalMessage = require("./models/personal-message.js");
 //store active users
 var list_active_users = {};
-var socket_server_side = function(socket){
+var socket_server_side = function(socket, namespaceDefault){
+    //console.log(namespaceDefault);
     //notify new socket connected
     log4j_2.info("socket.id", socket.id);
     //1. get userID from socket handshake request
@@ -30,7 +31,7 @@ var socket_server_side = function(socket){
             } else {
                 //add to list-active-users, then notify to others
                 list_active_users[userID] = user; log4j_2.info("add new user: %s", userID);
-                socket.broadcast.emit("new-active-user", user); log4j_2.info("emit to all sockets a new-active-user: ", user.displayName);
+                namespaceDefault.emit("new-active-user", user); log4j_2.info("emit to all sockets a new-active-user: ", user.displayName);
             }
         }
     });
@@ -52,26 +53,58 @@ var socket_server_side = function(socket){
         var receiver = msgObject.to;
         //userA can open many tabs >>> chat a one tab need append on others
         //userA is unique by userID, not by socket
-        socket.emit("clientChatMsg", msgObject); log4j_2.info("socket emit to receiver: %s", msgObject.to);
+        socket.to(receiver).emit("clientChatMsg", msgObject); log4j_2.info("socket emit to receiver: %s", msgObject.to);
         var sender = msgObject.from; //log4j_2(msgObject.from);
         //socket.to(sender).broadcast.emit("clientChatMsg", msgObject); log4j_2.info("send to sender %s", msgObject.from); //we don't have to "to(ROOM)", if socke.emit means socket emit to its room
-        socket.emit("clientChatMsg", msgObject); log4j_2.info("send to sender %s", msgObject.from);
+        //BROADCAST, obmit who send this msg, other sockets of userA need update conversation
+        socket.to(sender).broadcast.emit("clientChatMsg", msgObject); log4j_2.info("send to sender %s", msgObject.from);
     });
     //5. load msg history from PersonalMessage table
     socket.on("loadMsg", function(demand){
         PersonalMessage.find({
             from: demand.from,
             to: demand.to}).
-            sort({createAt: 1}).
+            sort({createAt: "ascending"}).
             limit(10).
-            exec(function(err, listMsg){
-            //mongoose "find" function return empty-array []/collection
-            if(!err && listMsg.length > 0){
-                log4j_2.info(listMsg);
-                socket.emit("loadMsg", listMsg); //emit here means emit to any socket in this socket's ROOM
+            exec(function(err, listMsg) {
+                //mongoose "find" function return empty-array []/collection
+                if (!err && listMsg.length > 0) {
+                    log4j_2.info(listMsg);
+                    socket.emit("loadMsg", listMsg); //emit here means emit to any socket in this socket's ROOM
+                }
             }
-        });
+        );
     });
-
+    socket.on("disconnect", function(){
+        //deactive user, when room is empty
+        log4j_2.info("on disconnect, socket.id-%s", socket.id);
+        var cookie = socket.handshake.headers.cookie; log4j_2.info(cookie);
+        var key = "userID";
+        //get userID from cookie string
+        //noinspection JSCheckFunctionSignatures
+        var keyValueArray = cookie.match('(^|;) ?' + key + '=([^;]*)(;|$)');
+        var userID = keyValueArray ? keyValueArray[2] : null; log4j_2.info(userID);
+        var rooms = namespaceDefault.adapter.rooms;
+        log4j_2.info("rooms", rooms);
+        var room = namespaceDefault.adapter.rooms[userID];
+        log4j_2.info("room: ", room);
+        if(room.length <= 1){
+            log4j_2.info("room length <= 1");
+            //this user: inactive
+            //remove user from list-active-users
+            for (var userKey in list_active_users) {
+                //make sure list has key
+                if (list_active_users.hasOwnProperty(userKey)) {
+                    if(userKey === userID){
+                        log4j_2.info("delete userID-%s", userID);
+                        //remove him
+                        delete list_active_users[userKey];
+                        log4j_2.info(list_active_users);
+                        return;
+                    }
+                }
+            }
+        }
+    });
 };
 module.exports = socket_server_side;

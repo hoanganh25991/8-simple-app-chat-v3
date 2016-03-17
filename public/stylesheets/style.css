@@ -1,17 +1,19 @@
 body {
     font: 14px "Lucida Grande", Helvetica, Arial, sans-serif;
 }
-#msg{
-    overflow: auto;
-    height: 350px;
- }
-.list-msg li{
-    width: 100%;
-    padding: 2px;
-}
+
 #login-with a{
      display: block;
  }
+#msg{
+    overflow: scroll;
+    height: 350px;
+}
+.list-msg li{
+    width: 300px;
+    margin: auto;
+    padding: 2px;
+}
 .msg-left{
     max-width: 65%;
     float: left;
